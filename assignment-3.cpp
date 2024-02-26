@@ -6,6 +6,7 @@
 #include<string>
 #include<vector>
 #include<cmath>
+#include "check_input.h"
 
 using std::string;
 
@@ -40,12 +41,22 @@ public:
   // This should include function returning beta value 
 
   // Setter functions, to change value of data members
+  void set_name(std::string new_name) {if(check_string(new_name)){particle_name = new_name;}}
+  void set_mass(std::string new_mass) {if(check_double(new_mass)){rest_mass = stod(new_mass);}}
+  void set_charge(std::string new_charge) {if(check_int(new_charge)){charge=stoi(new_charge);}}
+  void set_velocity(std::string new_velocity)
+  {
+    if (check_double(new_velocity))
+    {
+      velocity = stod(new_velocity);
+      beta = stod(new_velocity)/light_speed;
+    }
+  }
   // Make sure you check input validity before changing something
   // Hint: you can use the input checking functions you used in assignment 1
 
   // Function to print info about a particle
   void print_data();
-
 };
 
 // Implementation of print_data function goes here
@@ -73,6 +84,11 @@ void particle::print_data()
 int main()
 {
   particle electron("electron", 0.511, -1, 2.55e8);
+  electron.print_data();
+  std::string new_mass;
+  std::cout<<"Input new mass";
+  std::cin>>new_mass;
+  electron.set_mass(new_mass);
   electron.print_data();
   // Create the following particles: 
   // two electrons, four muons, three taus, one antielectron, one antimuon, one antitau 
