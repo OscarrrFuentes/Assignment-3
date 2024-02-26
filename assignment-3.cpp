@@ -9,20 +9,34 @@
 
 using std::string;
 
+const double light_speed{2.99792458e8};
 // Beginning of particle class
 class particle
 {
 private:
   string particle_name;
+  double rest_mass;
+  int charge;
+  double velocity;
+  double beta = velocity/light_speed;
   //...other data members (see slides on BB)
 
 public:
   // Constructors
   // Here you need a default constructor, and a parameterised constructor
-
+  particle() = default;
+  particle(string name, double mass, int construct_charge, double construct_velocity):
+  particle_name{name}, rest_mass{mass}, charge{construct_charge}, velocity{construct_velocity}, beta{construct_velocity/light_speed}
+  {}
   // Destructor
+  ~particle(){std::cout<<"Destroying "<<particle_name<<std::endl;}
 
-  // Getter functions (accessors) to 
+  // Getter functions (accessors) to
+  string get_name(){return particle_name;}
+  double get_mass(){return rest_mass;}
+  int get_charge(){return charge;}
+  double get_velocity(){return velocity;}
+  double get_beta(){return beta;}
   // This should include function returning beta value 
 
   // Setter functions, to change value of data members
@@ -35,7 +49,12 @@ public:
 };
 
 // Implementation of print_data function goes here
-
+void particle::print_data()
+{
+  std::cout.precision(3);
+  std::cout<<"Particle: "<<particle_name<<"\nRest mass: "<<rest_mass<<" MeV\nCharge: "<<charge<<
+  " C\nVelocity: "<<velocity<<" m/s\nBeta = "<<beta<<"\n"<<std::endl;
+}
 // End of particle class and associated member functions
 
 // Beginning of detector class
@@ -53,7 +72,8 @@ public:
 // Main program
 int main()
 {
-
+  particle electron("electron", 0.511, -1, 2.55e8);
+  electron.print_data();
   // Create the following particles: 
   // two electrons, four muons, three taus, one antielectron, one antimuon, one antitau 
   // Use the parameterised constructor
