@@ -8,13 +8,11 @@
 #include<cmath>
 #include "check_input.h"
 
-using std::string;
-
 // Beginning of particle class
 class particle
 {
 private:
-  string particle_name;
+  std::string particle_name;
   double rest_mass;
   int charge;
   double velocity;
@@ -23,17 +21,17 @@ private:
 public:
   // Constructors
   particle() = default;
-  particle(string name, double mass, int construct_charge, double construct_velocity):
+  particle(std::string name, double mass, int construct_charge, double construct_velocity):
   particle_name{name}, rest_mass{mass}, charge{construct_charge}, velocity{construct_velocity}, beta{construct_velocity/light_speed}
   {}
-  particle(string name, double mass, int construct_charge, double construct_velocity, bool anti):
+  particle(std::string name, double mass, int construct_charge, double construct_velocity, bool anti):
   particle_name{name}, rest_mass{mass}, charge{construct_charge}, velocity{construct_velocity}, beta{construct_velocity/light_speed}
   {if(anti){charge=-construct_charge; particle_name="anti-"+name;}}
   // Destructor
   ~particle(){std::cout<<"Destroying "<<particle_name<<std::endl;}
 
   // Getter functions
-  string get_name(){return particle_name;}
+  std::string get_name(){return particle_name;}
   double get_mass(){return rest_mass;}
   int get_charge(){return charge;}
   double get_velocity(){return velocity;}
@@ -63,6 +61,7 @@ class detector
 {
 private:
   std::string detector_type;
+  bool status; // true/false => on/off
   int particle_count;
   int anti_particle_count;
 
@@ -70,72 +69,58 @@ public:
   // Constructors:
   detector() = default;
   detector(std::string type):
-  detector_type{type}, particle_count{0}, anti_particle_count{0}{};
+  detector_type{type}, status{false}, particle_count{0}, anti_particle_count{0}{};
 
   // Destructor
   ~detector(){std::cout<<"Destroying "<<detector_type<<std::endl;}
 
   // Getters
-  string get_type(){return detector_type;}
+  std::string get_type(){return detector_type;}
+
+  void turn_on()
+  {
+    if(status){std::cout<<"This "<<detector_type<<" is already on"<<std::endl;}
+    else{status = true;}
+  }
+
+  void turn_off()
+  {
+    if(!status){std::cout<<"This "<<detector_type<<" is already off"<<std::endl;}
+    else{status = false;}
+  }
 
   void show_particles()
   {
-    if(detector_type == "tracker"){std::cout<<particle_count<<" electrons and "<<anti_particle_count<<" anti-electrons have passed through this tracker"<<std::endl;}
-    else if(detector_type == "muon chamber"){std::cout<<particle_count<<" muons and "<<anti_particle_count<<" anti-muons have passed through this muon chamber"<<std::endl;}
-    else if(detector_type == "calorimeter"){std::cout<<particle_count<<" tau particles and "<<anti_particle_count<<" anti-tau particles have passed through this calorimeter"<<std::endl;}
+    if(detector_type == "tracker"){std::cout<<particle_count<<" electrons have passed through this tracker"<<std::endl;}
+    else if(detector_type == "muon chamber"){std::cout<<particle_count<<" muons have passed through this muon chamber"<<std::endl;}
+    else if(detector_type == "calorimeter"){std::cout<<particle_count<<" electrons or muons have passed through this calorimeter"<<std::endl;}
     else{std::cout<<"DETECTOR_TYPE ERROR"<<std::endl;}
   }
   bool track_particle(particle lepton)
   {
-    if(detector_type == "tracker")
+    if(!status)
     {
-      if(lepton.get_name() == "electron")
-      {
-        particle_count++;
-        std::cout<<"Electron detected"<<std::endl;
-        return true;
-      }
-      else if(lepton.get_name() == "anti-electron")
-      {
-        anti_particle_count++;
-        std::cout<<"Anti-electron detected"<<std::endl;
-        return true;
-      }
+      std::cout<<"This "<<detector_type<<" is off"<<std::endl;
       return false;
     }
-    else if(detector_type == "muon chamber")
+    if(detector_type == "tracker" && (lepton.get_name() == "electron" || lepton.get_name() == "anti-electron"))
     {
-      if(lepton.get_name() == "muon")
-      {
-        particle_count++;
-        std::cout<<"Muon detected"<<std::endl;
-        return true;
-      }
-      else if(lepton.get_name() == "anti-muon")
-      {
-        anti_particle_count++;
-        std::cout<<"Anti-muon detected"<<std::endl;
-        return true;
-      }
-      return false;
+      particle_count++;
+      std::cout<<"Electron detected"<<std::endl;
+      return true;
     }
-    else if(detector_type == "calorimeter")
+    else if(detector_type == "muon chamber" && (lepton.get_name() == "muon" || lepton.get_name() == "anti-muon"))
     {
-      if(lepton.get_name() == "tau")
-      {
-        particle_count++;
-        std::cout<<"Tau detected"<<std::endl;
-        return true;
-      }
-      else if(lepton.get_name() == "anti-tau")
-      {
-        anti_particle_count++;
-        std::cout<<"Anti-tau detected"<<std::endl;
-        return true;
-      }
-      return false;
+      particle_count++;
+      std::cout<<"Muon detected"<<std::endl;
+      return true;
     }
-    std::cout<<"DETECTER ERROR"<<std::endl;
+    else if(detector_type == "calorimeter" && (lepton.get_name() == "electron" || lepton.get_name() == "anti-electron" || lepton.get_name() == "muon" || lepton.get_name() == "anti-muon"))
+    {
+      particle_count++;
+      std::cout<<"Electron or muon detected"<<std::endl;
+      return true;
+    }
     return false;
   }
 };
@@ -158,16 +143,13 @@ int main()
   particles.emplace_back("muon", 105.7, -1, 2.55e8, true);
   particles.emplace_back("tau", 1777, -1, 2.55e8, true);
 
+  // Print out the data from all the particles (put them in a vector)
   for(int i=0;i<particles.size();i++)
   {
     particles[i].print_data();
   }
 
-  // Create the following particles: 
-  // two electrons, four muons, three taus, one antielectron, one antimuon, one antitau 
-  // Use the parameterised constructor
-
-  // Print out the data from all the particles (put them in a vector)
+  // Create the following detectors: a tracker, a calorimeter, a muon chamber
   detector tracker{"tracker"};
   detector muon_chamber{"muon chamber"};
   detector calorimeter{"calorimeter"};
@@ -176,24 +158,38 @@ int main()
   muon_chamber.show_particles();
   calorimeter.show_particles();
 
+  // Pass the list of particles into each detector
   std::cout<<"\nPassing particles through detectors...\n"<<std::endl;
-
+  tracker.turn_on();
+  muon_chamber.turn_on();
+  calorimeter.turn_on();
   for(auto& single_particle:particles)
   {
     tracker.track_particle(single_particle);
+  }
+    for(auto& single_particle:particles)
+  {
     muon_chamber.track_particle(single_particle);
+  }
+    for(auto& single_particle:particles)
+  {
     calorimeter.track_particle(single_particle);
   }
+  std::cout<<"\nAll particles passed through all detectors\n"<<std::endl;
+  tracker.turn_off();
+  muon_chamber.turn_off();
+  calorimeter.turn_off();
+  // Print a summary of how many particles were detected
   std::cout<<"\n";
   tracker.show_particles();
   muon_chamber.show_particles();
   calorimeter.show_particles();
   std::cout<<"\n";
-  // Create the following detectors: a tracker, a calorimeter, a muon chamber
-
-  // Pass the list of particles into each detector
-
-  // Print a summary of how many particles were detected
-
+  // Show a particle going through a turned off detector
+  particle trial_electron{"electron", 0.511, -1, 827364};
+  std::cout<<"\nPassing trial electron through tracker when tracker turned off...\n"<<std::endl;
+  tracker.track_particle(trial_electron);
+  std::cout<<"\nDone"<<std::endl;
+  // Show validation options for changing velocity
   return 0;
 }
