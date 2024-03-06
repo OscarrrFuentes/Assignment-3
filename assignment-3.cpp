@@ -25,7 +25,8 @@ void detector::turn_off()
 
 void detector::show_particles()
 {
-  if(detector_type == "tracker"){std::cout<<particle_count<<" electrons have passed through this tracker"<<std::endl;}
+  if(!status){std::cout<<"This "<<detector_type<<" is off"<<std::endl;}
+  else if(detector_type == "tracker"){std::cout<<particle_count<<" electrons have passed through this tracker"<<std::endl;}
   else if(detector_type == "muon chamber"){std::cout<<particle_count<<" muons have passed through this muon chamber"<<std::endl;}
   else if(detector_type == "calorimeter"){std::cout<<particle_count<<" electrons or muons have passed through this calorimeter"<<std::endl;}
   else{std::cout<<"DETECTOR_TYPE ERROR"<<std::endl;}
@@ -35,7 +36,7 @@ bool detector::track_particle(particle lepton)
 {
   if(!status)
   {
-    std::cout<<"This "<<detector_type<<" is off"<<std::endl;
+    std::cout<<"This "<<detector_type<<" is off, particle not tracked"<<std::endl;
     return false;
   }
   if(detector_type == "tracker" && (lepton.get_name() == "electron" || lepton.get_name() == "anti-electron"))
@@ -61,7 +62,8 @@ bool detector::track_particle(particle lepton)
 
 void detector::reset()
 {
-  if(particle_count>0){particle_count = 0;}
+  if(!status){std::cout<<"This "<<detector_type<<" is off"<<std::endl;}
+  else if(particle_count>0){particle_count = 0;}
   else{std::cout<<"The count is already at 0"<<std::endl;}
 }
 
@@ -131,7 +133,6 @@ int main()
   std::cout<<"\nDone"<<std::endl;
   // Show validation options for changing velocity
   std::cout<<"\nCurrent velocity: "<<trial_electron.get_velocity()<<"\nCurrent beta: "<<trial_electron.get_beta()<<std::endl;
-  std::string velocity_input;
   std::cout<<"Attempted input velocity of '1234567890'"<<std::endl;
   trial_electron.set_velocity("1234567890", false);
   std::cout<<"\nAttempted input velocity of 'abcd'"<<std::endl;
