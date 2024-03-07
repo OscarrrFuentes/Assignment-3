@@ -28,7 +28,7 @@ public:
   void turn_on();
   void turn_off();
   void show_particles();
-  bool track_particle(particle);
+  bool track_particle(particle*);
   void reset();
 };
 
