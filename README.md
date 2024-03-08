@@ -1,6 +1,7 @@
 ## Line for Compilation
 `g++ assignment-3.cpp -o assignment-3.exe`
-Run `a.exe`
+
+Run `assignment-3.exe`
 
 This is the template for the third assignment. 
 
